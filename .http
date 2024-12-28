@@ -1,4 +1,12 @@
-
+###VARIABLES
+@baseUrl = http://localhost:3000
 # The basic request
-http://localhost:3000
+{{baseUrl}}
+
+
+# Get all tasks
+GET {{baseUrl}}/tasks
+
+# Get a task
+GET {{baseUrl}}/tasks/123
 
