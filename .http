@@ -5,15 +5,8 @@
 # The basic request
 {{baseUrl}}
 
-
-###Get all tasks
-GET {{baseUrl}}/tasks
-
-### Get a task
-GET {{baseUrl}}/tasks/3e227adf-bb22-4ec7-95e5-556184bd07df
-
-
 ### create new task
+# @name createTask
 POST {{baseUrl}}/tasks
 Content-Type: {{contentType}}
 
@@ -22,9 +15,40 @@ Content-Type: {{contentType}}
     "description": "Task 1 description",
     "status": "OPEN"
 }
+### Set the task id
+@taskId = {{ createTask.response.body.id }}
+
+
+###Get all tasks
+GET {{baseUrl}}/tasks
+
+### Get a task
+GET {{baseUrl}}/tasks/{{taskId}}
+
+### Update the task
+PATCH  {{baseUrl}}/tasks/{{taskId}}
+Content-Type: {{contentType}}
+
+{
+    "title": "Task 1 editada",
+    "description": "Task 1 description editada",
+    "status": "OPEN"
+}
+
+### Update the task - status is incorrect
+PATCH  {{baseUrl}}/tasks/{{taskId}}
+Content-Type: {{contentType}}
+
+{
+    
+    "status": "DONE"
+}
+
+
 
 ### validate error - status is incorrect
 POST {{baseUrl}}/tasks
+
 Content-Type: {{contentType}}
 
 {
@@ -33,15 +57,8 @@ Content-Type: {{contentType}}
     "status": "xxx"
 }
 
-### Update the task status
-PATCH  {{baseUrl}}/tasks/cf37d9a8-179e-437c-aedb-5fb7c26a8987/status
-Content-Type: {{contentType}}
 
-{
-    
-    "status": "DONE"
-}
+
 
 ### Deleting a task
-DELETE {{baseUrl}}/tasks/c02d1c97-0584-4fc9-8a7f-bb65a1959584
-
+DELETE {{baseUrl}}/tasks/{{taskId}}
