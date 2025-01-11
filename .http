@@ -13,7 +13,8 @@ Content-Type: {{contentType}}
 {
     "title": "Task 1",
     "description": "Task 1 description",
-    "status": "OPEN"
+    "status": "OPEN",
+    "userId": "ca3af628-0571-4fa0-950f-00a4a061f7d2"
 }
 ### Set the task id
 @taskId = {{ createTask.response.body.id }}
