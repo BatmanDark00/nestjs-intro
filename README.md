@@ -97,3 +97,13 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Packages
+Configuration module for Nest based on the dotenv (to load process environment variables) package.
+npm i --save @nestjs/config 
+
+
+
+
+npm install --save joi
+
