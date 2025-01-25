@@ -14,7 +14,15 @@ Content-Type: {{contentType}}
     "title": "Task 1",
     "description": "Task 1 description",
     "status": "OPEN",
-    "userId": "ca3af628-0571-4fa0-950f-00a4a061f7d2"
+    "userId": "ca3af628-0571-4fa0-950f-00a4a061f7d2",
+    "labels": [
+        {
+            "name": "label 1"
+        },
+        {
+            "name": "label 2"
+        }
+    ]
 }
 ### Set the task id
 @taskId = {{ createTask.response.body.id }}
@@ -36,13 +44,21 @@ Content-Type: {{contentType}}
     "status": "OPEN"
 }
 
-### Update the task - status is incorrect
+### Update the task statuts
 PATCH  {{baseUrl}}/tasks/{{taskId}}
 Content-Type: {{contentType}}
 
 {
     
-    "status": "DONE"
+    "status": "IN_PROGRESS",
+    "labels":[
+        {
+            "name": "label 3"
+        },
+        {
+            "name": "label 3"
+        }
+    ]
 }
 
 
@@ -63,3 +79,22 @@ Content-Type: {{contentType}}
 
 ### Deleting a task
 DELETE {{baseUrl}}/tasks/{{taskId}}
+
+
+### Add specific labels to task
+# @name addLabels
+POST {{baseUrl}}/tasks/{{taskId}}/labels
+Content-Type: {{contentType}}
+
+[
+  {"name": "prioritized"},
+  {"name": "bug"},
+  {"name": "urgent"}
+]
+
+### Remove specific labels from task
+# @name removeLabels
+DELETE {{baseUrl}}/tasks/{{taskId}}/labels
+Content-Type: {{contentType}}
+
+["urgent"]
