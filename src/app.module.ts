@@ -16,6 +16,7 @@ import { Task } from './tasks/task.entity';
 import { User } from './users/user.entity';
 import { TaskLabel } from './tasks/task.label.entity';
 import { authConfig } from './config/auth.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { authConfig } from './config/auth.config';
     }),
     //TypeOrmModule.forRoot(typeOrmConfig()),
     TasksModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
