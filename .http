@@ -43,6 +43,16 @@ GET {{baseUrl}}/tasks?status=IN_PROGRESS
 GET {{baseUrl}}/tasks?search=tas
 
 
+###Get all filtered by label
+# @getAllFilteredByLabel
+GET {{baseUrl}}/tasks?labels=label 1
+
+
+###Get all  sorted
+# @getAllSorted
+GET {{baseUrl}}/tasks?sortBy=status&sortOrder=ASC
+
+
 ### Get a task
 GET {{baseUrl}}/tasks/{{taskId}}
 
