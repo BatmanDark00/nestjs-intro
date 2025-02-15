@@ -29,7 +29,19 @@ Content-Type: {{contentType}}
 
 
 ###Get all tasks
-GET {{baseUrl}}/tasks
+# @getAllTasks
+GET {{baseUrl}}/tasks?offset=2&limit=3
+
+
+###Get all IN_PROGRESS tasks
+# @getAllInProgress
+GET {{baseUrl}}/tasks?status=IN_PROGRESS
+
+
+###Get all with search query
+# @getAllWithSearchQuery
+GET {{baseUrl}}/tasks?search=tas
+
 
 ### Get a task
 GET {{baseUrl}}/tasks/{{taskId}}
@@ -98,3 +110,4 @@ DELETE {{baseUrl}}/tasks/{{taskId}}/labels
 Content-Type: {{contentType}}
 
 ["urgent"]
+

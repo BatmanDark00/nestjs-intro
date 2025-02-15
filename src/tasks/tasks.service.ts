@@ -8,6 +8,8 @@ import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskLabelDto } from './create-task-label.dto';
 import { TaskLabel } from './task.label.entity';
+import { FindTaskParams } from './find-task.params';
+import { PaginationParams } from 'src/common/pagination.params';
 
 @Injectable()
 export class TasksService {
@@ -19,8 +21,30 @@ export class TasksService {
     private readonly labelsRepository: Repository<TaskLabel>,
   ) {}
 
-  public async findAll(): Promise<Task[]> {
-    return await this.taskRepository.find();
+  public async findAll(
+    filters: FindTaskParams,
+    pagination: PaginationParams,
+  ): Promise<[Task[], number]> {
+    const query = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.labels', 'labels');
+
+    if (filters.status) {
+      query.andWhere('task.status = :status', { status: filters.status });
+    }
+
+    if (filters.search) {
+      query.andWhere(
+        '(task.title ILIKE :search OR task.description ILIKE :search)',
+        {
+          search: `%${filters.search}%`,
+        },
+      );
+    }
+
+    query.skip(pagination.offset).take(pagination.limit);
+
+    return await query.getManyAndCount();
   }
 
   public async findOne(id: string): Promise<Task | null> {
