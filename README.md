@@ -107,3 +107,13 @@ npm i --save @nestjs/config
 
 npm install --save joi
 
+
+authentication:
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt bcrypt
+npm install --save-dev @types/passport-jwt @types/passport @types/bcrypt @types/jsonwebtoken
+
+Generate JWT_SECRET= in file .env
+
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+
