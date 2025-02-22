@@ -1,5 +1,5 @@
 ###VARIABLES
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:4000
 @contentType = application/json
 
 # The basic request
