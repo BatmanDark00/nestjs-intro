@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypedConfigService } from 'src/config/typed-config.service';
 import { AuthConfig } from 'src/config/auth.config';
+import { PasswordService } from './password/password.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { AuthConfig } from 'src/config/auth.config';
   ],
 
   controllers: [],
-  providers: [],
+  providers: [PasswordService],
   exports: [],
 })
 export class UsersModule {}
