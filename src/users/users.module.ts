@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypedConfigService } from 'src/config/typed-config.service';
 import { AuthConfig } from 'src/config/auth.config';
 import { PasswordService } from './password/password.service';
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { PasswordService } from './password/password.service';
   ],
 
   controllers: [],
-  providers: [PasswordService],
+  providers: [PasswordService, UserService],
   exports: [],
 })
 export class UsersModule {}
