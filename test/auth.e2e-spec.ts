@@ -1,6 +1,11 @@
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { TestSetup } from './utils/test-setup';
+import { Role } from './../src/users/user/role.enum';
+import { PasswordService } from './../src/users/password/password.service';
+import { JwtService } from '@nestjs/jwt';
+import { User } from './../src/users/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('AppController (e2e)', () => {
   let testSetup: TestSetup;
@@ -21,6 +26,7 @@ describe('AppController (e2e)', () => {
     email: 'test@example.com',
     password: 'password123',
     name: 'Test User',
+    roles: [Role.USER],
   };
 
   it('auth/register (POST)', async () => {
@@ -35,6 +41,22 @@ describe('AppController (e2e)', () => {
     expect(response.body).not.toHaveProperty('password');
   });
 
+  it('should require auth', () => {
+    return request(testSetup.app.getHttpServer()).get('/tasks').expect(401);
+  });
+
+  it('should allow public route access', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(testUser)
+      .expect(201);
+
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser)
+      .expect(201);
+  });
+
   it('auth/register (POST) - email already exists', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
@@ -44,6 +66,29 @@ describe('AppController (e2e)', () => {
       .post('/auth/register')
       .send(testUser)
       .expect(409);
+  });
+
+  it('should include roles in JWT token', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      roles: [Role.ADMIN],
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+
+    const decoded = testSetup.app
+      .get(JwtService)
+      .verify(response.body.accessToken);
+
+    expect(decoded.roles).toBeDefined();
+    expect(decoded.roles).toContain(Role.ADMIN);
   });
 
   it('/auth/login (POST)', async () => {
@@ -57,5 +102,38 @@ describe('AppController (e2e)', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.accessToken).toBeDefined();
+  });
+
+  it('/auth/login (POST) - invalid credentials', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(testUser);
+
+    return await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: 'invalid' })
+      .expect(401);
+  });
+
+  it('/auth/profile (GET)', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(testUser);
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+
+    const token = response.body.accessToken;
+
+    return await request(testSetup.app.getHttpServer())
+      .get('/auth/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.email).toBe(testUser.email);
+        expect(res.body.name).toBe(testUser.name);
+        expect(res.body).not.toHaveProperty('password');
+      });
   });
 });
