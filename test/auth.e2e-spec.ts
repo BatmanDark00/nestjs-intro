@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from './../src/users/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
-describe('AppController (e2e)', () => {
+describe('Authentication and authorization (e2e)', () => {
   let testSetup: TestSetup;
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe('AppController (e2e)', () => {
 
   const testUser = {
     email: 'test@example.com',
-    password: 'password123',
+    password: 'Frank$9899',
     name: 'Test User',
     roles: [Role.USER],
   };
@@ -134,6 +134,62 @@ describe('AppController (e2e)', () => {
         expect(res.body.email).toBe(testUser.email);
         expect(res.body.name).toBe(testUser.name);
         expect(res.body).not.toHaveProperty('password');
+      });
+  });
+
+  it('/auth/admin (GET) - admin access', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      roles: [Role.ADMIN],
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+    const token = response.body.accessToken;
+
+    return request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.message).toBe('This is for admins only!');
+      });
+  });
+
+  it('/auth/admin (GET) - regular user denied', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(testUser);
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: testUser.email, password: testUser.password });
+
+    const token = response.body.accessToken;
+
+    return await request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403);
+  });
+
+  it('/auth/register (POST) - attempting to register as an admin', async () => {
+    const userAdmin = {
+      ...testUser,
+      roles: [Role.ADMIN],
+    };
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(userAdmin)
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.roles).toEqual([Role.USER]);
       });
   });
 });
